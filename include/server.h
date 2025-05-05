@@ -1,6 +1,6 @@
 #ifndef SERVER_H
 #define SERVER_H
-#include "../../nnlib/nnlib.h"
+#include <libnn.h>
 #include <arpa/inet.h>
 #include <openssl/ssl.h>
 #include <signal.h>

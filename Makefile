@@ -1,4 +1,4 @@
-SRC = ../nnlib/nnlib.c src/file.c src/main.c src/response.c src/server.c src/log.c
+SRC = src/file.c src/main.c src/response.c src/server.c src/log.c
 
 CFLAGS += -I./include
 
@@ -28,7 +28,7 @@ OBJS=	$(SRC:.c=.o)
 
 CFLAGS = -Wall -Wextra -pedantic -g
 
-LDFLAGS = -lssl
+LDFLAGS = -lssl -lnn
 
 all: $(NAME)
 

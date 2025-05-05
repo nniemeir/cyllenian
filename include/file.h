@@ -1,6 +1,6 @@
 #ifndef FILE_H
 #define FILE_H
-#include "../../nnlib/nnlib.h"
+#include <libnn.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
