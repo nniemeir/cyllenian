@@ -14,7 +14,7 @@ cyllenian [OPTIONS]
 ### Options
 ```
 -c <directory>          Specify path to certificate file
--h                      Display this message
+-h                      Display program usage
 -k <directory>          Specify path to private key file
 -l                      Save program output to file
 -p <port>               Specify port to listen on
