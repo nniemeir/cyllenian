@@ -77,8 +77,10 @@ void process_args(int argc, char *argv[], int *port, char **cert_path,
 int main(int argc, char *argv[]) {
   // These values will be changed if their corresponding arguments are given
   int port = 8080;
-  char *cert_path = prepend_program_data_path(program_name, "cert");
-  char *key_path = prepend_program_data_path(program_name, "key");
+  char *cert_path = malloc(4096);
+  prepend_program_data_path(program_name, &cert_path, "cert");
+  char *key_path = malloc(4096);
+  prepend_program_data_path(program_name, &key_path, "key");
   if (!cert_path || !key_path) {
     return EXIT_FAILURE;
   }

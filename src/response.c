@@ -155,7 +155,8 @@ void determine_response_code(const char *request_buffer, char **file_request,
                              int *response_code) {
   const char *method = get_method(request_buffer);
   if (!method) {
-    *file_request = "website/405.html";
+    free(*file_request);
+    *file_request = strdup("website/405.html");
     *response_code = 405;
     return;
   }
@@ -163,13 +164,15 @@ void determine_response_code(const char *request_buffer, char **file_request,
   normalize_request_path(*file_request);
 
   if (contains_traversal_patterns(*file_request)) {
-    *file_request = "website/403.html";
+    free(*file_request);
+    *file_request = strdup("website/403.html");
     *response_code = 403;
     return;
   }
 
   if (!file_exists(*file_request)) {
-    *file_request = "website/404.html";
+    free(*file_request);
+    *file_request = strdup("website/404.html");
     *response_code = 404;
     return;
   }
@@ -178,14 +181,14 @@ void determine_response_code(const char *request_buffer, char **file_request,
   return;
 }
 
-char *get_requested_file_path(char *request_buffer) {
+int get_requested_file_path(char **path_buffer, char *request_buffer) {
   char *file_request_buffer = strdup(request_buffer);
   char *file_request = isolate_file_request(file_request_buffer);
-  char *request_path = prepend_program_data_path(program_name, "website/");
+  prepend_program_data_path(program_name, path_buffer, "website/");
   if (!file_request) {
     file_request = "404.html";
   }
-  strcat(request_path, file_request);
+  strcat(*path_buffer, file_request);
   free(file_request_buffer);
-  return request_path;
+  return 1;
 }

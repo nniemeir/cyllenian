@@ -56,11 +56,19 @@ void handle_client(SSL_CTX *ctx, int clientfd) {
   }
   request_buffer[bytes_read] = '\0';
 
-  char *file_path = get_requested_file_path(request_buffer);
+  char *path_buffer = malloc(4096);
+  if (!path_buffer) {
+    log_event(program_name, ERROR, "Failed to allocate memory for path_buffer.",
+              log_to_file);
+    SSL_cleanup();
+    return;
+  }
+
+  get_requested_file_path(&path_buffer, request_buffer);
 
   int response_code;
 
-  determine_response_code(request_buffer, &file_path, &response_code);
+  determine_response_code(request_buffer, &path_buffer, &response_code);
 
   char *header = malloc(MAX_HEADER);
   if (!header) {
@@ -71,7 +79,7 @@ void handle_client(SSL_CTX *ctx, int clientfd) {
   }
   header[0] = '\0';
 
-  if (!construct_header(&header, response_code, file_path)) {
+  if (!construct_header(&header, response_code, path_buffer)) {
     log_event(program_name, ERROR, "Failed to construct header.", log_to_file);
     free(header);
     return;
@@ -87,7 +95,10 @@ void handle_client(SSL_CTX *ctx, int clientfd) {
   }
 
   size_t file_size;
-  unsigned char *response_file = read_file(program_name, file_path, &file_size);
+  unsigned char *response_file =
+      read_file(program_name, path_buffer, &file_size);
+
+  free(path_buffer);
 
   // After an appropriate response is generated, it is sent to the client
   if (SSL_write(ssl, response_file, file_size) <= 0) {
