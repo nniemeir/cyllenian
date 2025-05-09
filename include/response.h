@@ -20,14 +20,14 @@ void determine_response_code(const char *request_buffer, char **file_request,
                              int *response_code);
 int get_requested_file_path(char **path_buffer, char *request_buffer);
 
-  struct mime_type {
-    char extension[6];
-    char mime_type[50];
-  };
+struct mime_type {
+  char extension[6];
+  char mime_type[50];
+};
 
-  struct response_code {
-    int code;
-    char message[50];
-  };
+struct response_code {
+  int code;
+  char message[50];
+};
 
 #endif

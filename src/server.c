@@ -231,8 +231,9 @@ int init_server(int *port, char **cert_path, char **key_path) {
     return EXIT_FAILURE;
   }
 
-  char listening_msg[100];
-  snprintf(listening_msg, 100, "Started listening on port %d.", *port);
+  char listening_msg[LISTENING_MSG_MAX];
+  snprintf(listening_msg, LISTENING_MSG_MAX, "Started listening on port %d.",
+           *port);
   log_event(program_name, INFO, listening_msg, log_to_file);
 
   bool serving_clients = true;

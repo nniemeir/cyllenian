@@ -70,8 +70,8 @@ int log_request(const char *request_buffer, int response_code,
     free(host_buffer);
   }
 
-  char msg[256];
-  snprintf(msg, 256, "%s \"%s\" %d %d", host, header, response_code,
+  char msg[LOG_MAX];
+  snprintf(msg, LOG_MAX, "%s \"%s\" %d %d", host, header, response_code,
            response_size);
   log_event(program_name, INFO, msg, log_to_file);
   free(header);

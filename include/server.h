@@ -1,13 +1,14 @@
 #ifndef SERVER_H
 #define SERVER_H
-#include <libnn.h>
 #include <arpa/inet.h>
+#include <libnn.h>
 #include <openssl/ssl.h>
 #include <signal.h>
 #include <unistd.h>
 
 #define BACKLOG_SIZE 128
 #define BUFFER_SIZE 1048576
+#define LISTENING_MSG_MAX 50
 
 extern int sockfd;
 extern SSL *ssl;

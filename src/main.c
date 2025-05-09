@@ -1,5 +1,6 @@
 #include "../include/file.h"
 #include "../include/server.h"
+#include <linux/limits.h>
 
 int sockfd;
 SSL *ssl;
@@ -65,9 +66,9 @@ void process_args(int argc, char *argv[], int *port, char **cert_path,
     case '?':
       fprintf(stderr, "Unknown option '-%c'. Run with -h for options.\n",
               optopt);
-      char errmsg[256];
-      snprintf(errmsg, 256, "Unknown option '-%c'. Run with -h for options.",
-               optopt);
+      char errmsg[LOG_MAX];
+      snprintf(errmsg, LOG_MAX,
+               "Unknown option '-%c'. Run with -h for options.", optopt);
       log_event(program_name, ERROR, errmsg, log_to_file);
       exit(EXIT_FAILURE);
     }
@@ -77,9 +78,9 @@ void process_args(int argc, char *argv[], int *port, char **cert_path,
 int main(int argc, char *argv[]) {
   // These values will be changed if their corresponding arguments are given
   int port = 8080;
-  char *cert_path = malloc(4096);
+  char *cert_path = malloc(PATH_MAX);
   prepend_program_data_path(program_name, &cert_path, "cert");
-  char *key_path = malloc(4096);
+  char *key_path = malloc(PATH_MAX);
   prepend_program_data_path(program_name, &key_path, "key");
   if (!cert_path || !key_path) {
     return EXIT_FAILURE;
