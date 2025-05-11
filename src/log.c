@@ -1,5 +1,4 @@
 #include "../include/log.h"
-#include "../include/file.h"
 
 char *get_host(char *host_buffer) {
   char *substring = NULL;

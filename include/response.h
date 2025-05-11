@@ -11,7 +11,7 @@
 #define MAX_CONTENT_TYPE 128
 #define MAX_RESPONSE_CODE 128
 #define METHOD_LENGTH 5
-#define NUM_OF_MIME_TYPES 10
+#define NUM_OF_MIME_TYPES 14
 #define NUM_OF_RESPONSE_CODES 5
 
 int construct_header(char **header, int response_code,

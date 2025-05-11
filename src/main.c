@@ -1,11 +1,9 @@
-#include "../include/file.h"
 #include "../include/server.h"
-#include <linux/limits.h>
 
 int sockfd;
 SSL *ssl;
 SSL_CTX *ctx;
-int log_to_file = 0;
+int log_to_file;
 
 void handler(int signal_num) {
   // printf is not async-signal-safe, so we opt for the write function
@@ -37,6 +35,7 @@ void process_args(int argc, char *argv[], int *port, char **cert_path,
       printf("  -c               Specify path to certificate file\n");
       printf("  -h               Show this help message\n");
       printf("  -k               Specify path to private key file\n");
+      printf("  -l               Save logs to file\n");
       printf("  -p               Specify port to listen on\n");
       exit(EXIT_SUCCESS);
     case 'k':
@@ -77,6 +76,7 @@ void process_args(int argc, char *argv[], int *port, char **cert_path,
 
 int main(int argc, char *argv[]) {
   // These values will be changed if their corresponding arguments are given
+  log_to_file = 0;
   int port = 8080;
   char *cert_path = malloc(PATH_MAX);
   prepend_program_data_path(program_name, &cert_path, "cert");

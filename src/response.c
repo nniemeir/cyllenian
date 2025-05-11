@@ -39,8 +39,10 @@ char *get_content_type(const char *file_request) {
       {"css", "text/css"},       {"gif", "image/gif"},
       {"htm", "text/html"},      {"html", "text/html"},
       {"jpeg", "image/jpeg"},    {"jpg", "image/jpeg"},
-      {"js", "text/javascript"}, {"png", "image/png"},
-      {"svg", "image/svg+xml"},  {"ttf", "font/ttf"}};
+      {"js", "text/javascript"}, {"json", "application/json"},
+      {"png", "image/png"},      {"mp3", "audio/mpeg"},
+      {"mp4", "video/mp4"},      {"svg", "image/svg+xml"},
+      {"ttf", "font/ttf"},       {"xml", "application/xml"}};
   char *content_type = malloc(MAX_CONTENT_TYPE);
   if (!content_type) {
     log_event(program_name, ERROR,
@@ -156,7 +158,9 @@ void determine_response_code(const char *request_buffer, char **file_request,
   const char *method = get_method(request_buffer);
   if (!method) {
     free(*file_request);
-    *file_request = strdup("website/405.html");
+    *file_request = malloc(PATH_MAX);
+    prepend_program_data_path(program_name, file_request, "website/");
+    strcat(*file_request, "405.html");
     *response_code = 405;
     return;
   }
@@ -165,14 +169,18 @@ void determine_response_code(const char *request_buffer, char **file_request,
 
   if (contains_traversal_patterns(*file_request)) {
     free(*file_request);
-    *file_request = strdup("website/403.html");
+    *file_request = malloc(PATH_MAX);
+    prepend_program_data_path(program_name, file_request, "website/");
+    strcat(*file_request, "403.html");
     *response_code = 403;
     return;
   }
 
   if (!file_exists(*file_request)) {
     free(*file_request);
-    *file_request = strdup("website/404.html");
+    *file_request = malloc(PATH_MAX);
+    prepend_program_data_path(program_name, file_request, "website/");
+    strcat(*file_request, "404.html");
     *response_code = 404;
     return;
   }

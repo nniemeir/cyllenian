@@ -1,5 +1,4 @@
 #include "../include/server.h"
-#include "../include/file.h"
 #include "../include/log.h"
 #include "../include/response.h"
 
