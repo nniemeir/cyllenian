@@ -78,6 +78,16 @@ int main(int argc, char *argv[]) {
   // These values will be changed if their corresponding arguments are given
   log_to_file = 0;
   int port = 8080;
+
+  char *path_buffer = malloc(PATH_MAX);
+  prepend_program_data_path(program_name, &path_buffer, "website/");
+  if (!file_exists(path_buffer)) {
+    log_event(program_name, FATAL, "Website directory not found.", log_to_file);
+    free(path_buffer);
+    return EXIT_FAILURE;
+  }
+  free(path_buffer);
+
   char *cert_path = malloc(PATH_MAX);
   prepend_program_data_path(program_name, &cert_path, "cert");
   char *key_path = malloc(PATH_MAX);
