@@ -55,7 +55,7 @@ void handle_client(SSL_CTX *ctx, int clientfd) {
   }
   request_buffer[bytes_read] = '\0';
 
-  char *path_buffer = malloc(4096);
+  char *path_buffer = malloc(PATH_MAX);
   if (!path_buffer) {
     log_event(program_name, ERROR, "Failed to allocate memory for path_buffer.",
               log_to_file);

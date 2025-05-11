@@ -4,6 +4,7 @@
 #include <libnn.h>
 #include <openssl/ssl.h>
 #include <signal.h>
+#include <stdbool.h>
 #include <unistd.h>
 
 #define BACKLOG_SIZE 128

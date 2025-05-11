@@ -1,4 +1,5 @@
 #include "../include/server.h"
+#include <time.h>
 
 int sockfd;
 SSL *ssl;
@@ -74,19 +75,26 @@ void process_args(int argc, char *argv[], int *port, char **cert_path,
   }
 }
 
-int main(int argc, char *argv[]) {
-  // These values will be changed if their corresponding arguments are given
-  log_to_file = 0;
-  int port = 8080;
-
+bool website_dir_exists(void) {
   char *path_buffer = malloc(PATH_MAX);
   prepend_program_data_path(program_name, &path_buffer, "website/");
   if (!file_exists(path_buffer)) {
     log_event(program_name, FATAL, "Website directory not found.", log_to_file);
     free(path_buffer);
-    return EXIT_FAILURE;
+    return false;
   }
   free(path_buffer);
+  return true;
+}
+
+int main(int argc, char *argv[]) {
+  // These values will be changed if their corresponding arguments are given
+  log_to_file = 0;
+  int port = 8080;
+
+  if (!website_dir_exists()) {
+    return EXIT_FAILURE;
+  }
 
   char *cert_path = malloc(PATH_MAX);
   prepend_program_data_path(program_name, &cert_path, "cert");

@@ -1,12 +1,14 @@
 SRC = src/file.c src/main.c src/response.c src/server.c src/log.c
 
-CFLAGS += -I./include
+WEBSITE_SRC_DIR = website
+
+WEBSITE_DEST_DIR = ~/.local/share/cyllenian/
 
 NAME = cyllenian
 
 RM = rm -f
 
-CP = cp -f
+CP = cp -f -r
 
 DESTDIR = /usr/bin/
 
@@ -26,7 +28,7 @@ CC = gcc
 
 OBJS=	$(SRC:.c=.o)
 
-CFLAGS = -Wall -Wextra -pedantic -g
+CFLAGS = -Wall -Wextra -pedantic -g -I./include
 
 LDFLAGS = -lssl -lnn
 
@@ -46,6 +48,7 @@ fclean: clean cleanMan
 
 install: $(NAME) 
 	$(CP) $(NAME) $(DESTDIR)
+	$(CP) $(WEBSITE_SRC_DIR) $(WEBSITE_DEST_DIR)
 	$(COMPRESS)
 	$(CP) $(SRCMAN)$(COMPMAN) $(MANDIR)
 	$(MANDB)
@@ -57,4 +60,4 @@ uninstall: $(NAME)
 	$(RM) $(MANDIR)$(COMPMAN)
 	$(MANDB)
 
-.PHONY: all clean fclean install re uninstall
+.PHONY: all clean cleanMan fclean install re uninstall

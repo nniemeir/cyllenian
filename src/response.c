@@ -95,6 +95,7 @@ int construct_header(char **header, int response_code,
 
   char *content_type = get_content_type(file_request);
   if (!content_type) {
+    free(response_code_msg);
     return 0;
   }
 
