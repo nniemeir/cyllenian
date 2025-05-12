@@ -1,8 +1,8 @@
 SRC = src/file.c src/main.c src/response.c src/server.c src/log.c
 
-WEBSITE_SRC_DIR = website
+DEFAULT_CONFIG = config/website/
 
-WEBSITE_DEST_DIR = ~/.local/share/cyllenian/
+ETC_DIR = /etc/cyllenian/website/
 
 NAME = cyllenian
 
@@ -32,6 +32,7 @@ CFLAGS = -Wall -Wextra -pedantic -g -I./include
 
 LDFLAGS = -lssl -lnn
 
+
 all: $(NAME)
 
 $(NAME): $(OBJS)
@@ -48,7 +49,7 @@ fclean: clean cleanMan
 
 install: $(NAME) 
 	$(CP) $(NAME) $(DESTDIR)
-	$(CP) $(WEBSITE_SRC_DIR) $(WEBSITE_DEST_DIR)
+	$(CP) $(DEFAULT_CONFIG) $(ETC_DIR)
 	$(COMPRESS)
 	$(CP) $(SRCMAN)$(COMPMAN) $(MANDIR)
 	$(MANDB)

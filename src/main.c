@@ -1,5 +1,4 @@
 #include "../include/server.h"
-#include <time.h>
 
 int sockfd;
 SSL *ssl;
@@ -20,13 +19,10 @@ void process_args(int argc, char *argv[], int *port, char **cert_path,
   while ((c = getopt(argc, argv, "c:hk:lp:")) != -1) {
     switch (c) {
     case 'c':
-      if (*cert_path) {
-        free(*cert_path);
-      }
       *cert_path = strdup(optarg);
       if (!*cert_path) {
-        log_event(program_name, ERROR,
-                  "Failed to allocate memory for cert_path.", log_to_file);
+        log_event(program_name, ERROR, malloc_err, log_to_file);
+        free(*key_path);
         exit(EXIT_FAILURE);
       }
       break;
@@ -45,8 +41,8 @@ void process_args(int argc, char *argv[], int *port, char **cert_path,
       }
       *key_path = strdup(optarg);
       if (!*key_path) {
-        log_event(program_name, ERROR,
-                  "Failed to allocate memory for key_path.", log_to_file);
+        log_event(program_name, ERROR, malloc_err, log_to_file);
+        free(*cert_path);
         exit(EXIT_FAILURE);
       }
       break;
@@ -55,11 +51,11 @@ void process_args(int argc, char *argv[], int *port, char **cert_path,
       break;
     case 'p':
       *port = atoi(optarg);
-      if (*port < 1024 || *port > 49151) {
-        log_event(
-            program_name, ERROR,
-            "Invalid port specified, valid ports are between 1024 and 49151.",
-            log_to_file);
+      if (*port <= 1024 || *port >= 49151) {
+        log_event(program_name, ERROR, "Port must be between 1024 and 49151.",
+                  log_to_file);
+        free(*cert_path);
+        free(*key_path);
         exit(EXIT_FAILURE);
       }
       break;
@@ -77,7 +73,15 @@ void process_args(int argc, char *argv[], int *port, char **cert_path,
 
 bool website_dir_exists(void) {
   char *path_buffer = malloc(PATH_MAX);
+  if (!path_buffer) {
+    log_event(program_name, ERROR, malloc_err, log_to_file);
+    return false;
+  }
   prepend_program_data_path(program_name, &path_buffer, "website/");
+  if (!path_buffer) {
+    log_event(program_name, ERROR, prepend_err, log_to_file);
+    return false;
+  }
   if (!file_exists(path_buffer)) {
     log_event(program_name, FATAL, "Website directory not found.", log_to_file);
     free(path_buffer);
@@ -97,10 +101,15 @@ int main(int argc, char *argv[]) {
   }
 
   char *cert_path = malloc(PATH_MAX);
-  prepend_program_data_path(program_name, &cert_path, "cert");
   char *key_path = malloc(PATH_MAX);
+  if (!cert_path || !key_path) {
+    log_event(program_name, ERROR, malloc_err, log_to_file);
+    return EXIT_FAILURE;
+  }
+  prepend_program_data_path(program_name, &cert_path, "cert");
   prepend_program_data_path(program_name, &key_path, "key");
   if (!cert_path || !key_path) {
+    log_event(program_name, ERROR, prepend_err, log_to_file);
     return EXIT_FAILURE;
   }
 

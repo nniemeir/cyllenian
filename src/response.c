@@ -56,6 +56,7 @@ char *get_content_type(const char *file_request) {
              "Content-Type: application/octet-stream\r\n\r\n");
     return content_type;
   }
+  // TODO - Implement a more efficient search algorithm
   int i;
   for (i = 0; i < NUM_OF_MIME_TYPES; ++i) {
     if (strcmp(file_extension, mime_type_associations[i].extension) == 0) {
@@ -154,16 +155,33 @@ const char *get_method(const char *request_buffer) {
   return NULL;
 }
 
-void determine_response_code(const char *request_buffer, char **file_request,
-                             int *response_code) {
+int determine_response_code(const char *request_buffer, char **file_request,
+                            int *response_code) {
   const char *method = get_method(request_buffer);
   if (!method) {
     free(*file_request);
     *file_request = malloc(PATH_MAX);
+    if (!*file_request) {
+      log_event(program_name, ERROR, malloc_err, log_to_file);
+      return 0;
+    }
     prepend_program_data_path(program_name, file_request, "website/");
+    if (!*file_request) {
+      log_event(program_name, ERROR, prepend_err, log_to_file);
+      return 0;
+    }
     strcat(*file_request, "405.html");
+    if (!file_exists(*file_request)) {
+      free(*file_request);
+      *file_request = malloc(PATH_MAX);
+      if (!*file_request) {
+        log_event(program_name, ERROR, malloc_err, log_to_file);
+        return 0;
+      }
+      strcat(*file_request, "/etc/cyllenian/website/405.html");
+    }
     *response_code = 405;
-    return;
+    return 1;
   }
 
   normalize_request_path(*file_request);
@@ -171,29 +189,77 @@ void determine_response_code(const char *request_buffer, char **file_request,
   if (contains_traversal_patterns(*file_request)) {
     free(*file_request);
     *file_request = malloc(PATH_MAX);
+    if (!*file_request) {
+      log_event(program_name, ERROR, malloc_err, log_to_file);
+      return 0;
+    }
     prepend_program_data_path(program_name, file_request, "website/");
+    if (!*file_request) {
+      log_event(program_name, ERROR, prepend_err, log_to_file);
+      return 0;
+    }
     strcat(*file_request, "403.html");
+    if (!file_exists(*file_request)) {
+      free(*file_request);
+      *file_request = malloc(PATH_MAX);
+      if (!*file_request) {
+        log_event(program_name, ERROR, malloc_err, log_to_file);
+        return 0;
+      }
+      memset(*file_request, 0, PATH_MAX);
+      strcat(*file_request, "/etc/cyllenian/website/403.html");
+    }
     *response_code = 403;
-    return;
+    return 1;
   }
 
   if (!file_exists(*file_request)) {
     free(*file_request);
     *file_request = malloc(PATH_MAX);
+    if (!*file_request) {
+      log_event(program_name, ERROR, malloc_err, log_to_file);
+      return 0;
+    }
     prepend_program_data_path(program_name, file_request, "website/");
+    if (!*file_request) {
+      log_event(program_name, ERROR, prepend_err, log_to_file);
+      return 0;
+    }
     strcat(*file_request, "404.html");
+    if (!file_exists(*file_request)) {
+      free(*file_request);
+      *file_request = malloc(PATH_MAX);
+      if (!*file_request) {
+        log_event(program_name, ERROR, malloc_err, log_to_file);
+        return 0;
+      }
+      memset(*file_request, 0, PATH_MAX);
+      strncat(*file_request, "/etc/cyllenian/website/404.html", PATH_MAX);
+    }
     *response_code = 404;
-    return;
+    return 1;
   }
 
   *response_code = 200;
-  return;
+  return 1;
 }
 
 int get_requested_file_path(char **path_buffer, char *request_buffer) {
   char *file_request_buffer = strdup(request_buffer);
+  if (!file_request_buffer) {
+    log_event(program_name, ERROR, "Failed to duplicate file_request",
+              log_to_file);
+    return 0;
+  }
   char *file_request = isolate_file_request(file_request_buffer);
+  if (!file_request) {
+    return 0;
+  }
   prepend_program_data_path(program_name, path_buffer, "website/");
+  if (!file_request) {
+    log_event(program_name, ERROR, prepend_err, log_to_file);
+    return 0;
+  }
   if (!file_request) {
     file_request = "404.html";
   }

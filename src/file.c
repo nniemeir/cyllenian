@@ -11,7 +11,7 @@ bool contains_traversal_patterns(const char *file_request) {
       "%2e%2e\\", "..% 5c ",   "%252e%252e%255c", "..%255c", "..\\"};
   for (size_t i = 0;
        i < sizeof(traversal_patterns) / sizeof(traversal_patterns[0]); ++i) {
-    if (strstr(file_request, traversal_patterns[i]) != NULL) {
+    if (strstr(file_request, traversal_patterns[i])) {
       return true;
     }
   }

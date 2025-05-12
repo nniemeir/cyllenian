@@ -15,7 +15,7 @@ void SSL_cleanup(void) {
 // Sets up the SSL structure for client connection
 SSL *setup_ssl(SSL_CTX *ctx, int clientfd) {
   ssl = SSL_new(ctx);
-  if (ssl == NULL) {
+  if (!ssl) {
     log_event(program_name, ERROR, "Failed to create SSL structure.",
               log_to_file);
     SSL_cleanup();
@@ -63,11 +63,21 @@ void handle_client(SSL_CTX *ctx, int clientfd) {
     return;
   }
 
-  get_requested_file_path(&path_buffer, request_buffer);
+  if (!get_requested_file_path(&path_buffer, request_buffer)) {
+    log_event(program_name, FATAL, "Failed to get requested file path.",
+              log_to_file);
+    SSL_cleanup();
+    return;
+  }
 
   int response_code;
 
-  determine_response_code(request_buffer, &path_buffer, &response_code);
+  if (!determine_response_code(request_buffer, &path_buffer, &response_code)) {
+    log_event(program_name, FATAL, "Failed to determine response code.",
+              log_to_file);
+    SSL_cleanup();
+    return;
+  }
 
   char *header = malloc(MAX_HEADER);
   if (!header) {
@@ -160,7 +170,7 @@ int init_socket(int port) {
 // The SSL context is a group of configuration settings for our connections
 SSL_CTX *init_ssl_ctx(char **cert_path, char **key_path) {
   ctx = SSL_CTX_new(TLS_server_method());
-  if (ctx == NULL) {
+  if (!ctx) {
     log_event(program_name, ERROR, "Failed to create SSL context.",
               log_to_file);
     return NULL;
