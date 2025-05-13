@@ -1,7 +1,5 @@
 #include "../include/file.h"
 
-const char *program_name = "cyllenian";
-
 bool contains_traversal_patterns(const char *file_request) {
   // Checks for common directory traversal patterns and their encoded forms,
   // which could otherwise be used to access files outside of the website

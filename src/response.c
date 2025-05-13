@@ -8,7 +8,6 @@ char *get_response_code_msg(int response_code) {
           {403, "HTTP/1.1 403 Forbidden"},
           {404, "HTTP/1.1 404 Not Found"},
           {405, "HTTP/1.1 405 Method Not Allowed"}};
-  int i;
   bool code_match_found = false;
   char *response_code_msg = malloc(MAX_RESPONSE_CODE);
   if (!response_code_msg) {
@@ -18,6 +17,7 @@ char *get_response_code_msg(int response_code) {
   }
   response_code_msg[0] = '\0';
 
+  int i;
   for (i = 0; i < NUM_OF_RESPONSE_CODES; ++i) {
     if (response_code == response_code_associations[i].code) {
       code_match_found = true;
@@ -100,7 +100,7 @@ int construct_header(char **header, int response_code,
     return 0;
   }
 
-  size_t content_type_length = strlen(content_type);
+  const size_t content_type_length = strlen(content_type);
   if (content_type_length < remaining_header_space) {
     if (content_type[0] != '\0') {
       strncat(*header, content_type,

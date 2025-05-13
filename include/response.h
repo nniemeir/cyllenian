@@ -17,7 +17,7 @@
 int construct_header(char **header, int response_code,
                      const char *file_request);
 int determine_response_code(const char *request_buffer, char **file_request,
-                             int *response_code);
+                            int *response_code);
 int get_requested_file_path(char **path_buffer, char *request_buffer);
 
 struct mime_type {

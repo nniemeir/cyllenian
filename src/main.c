@@ -4,6 +4,7 @@ int sockfd;
 SSL *ssl;
 SSL_CTX *ctx;
 int log_to_file;
+const char *program_name = "cyllenian";
 
 void handler(int signal_num) {
   // printf is not async-signal-safe, so we opt for the write function
