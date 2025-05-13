@@ -56,15 +56,42 @@ char *get_content_type(const char *file_request) {
              "Content-Type: application/octet-stream\r\n\r\n");
     return content_type;
   }
-  // TODO - Implement a more efficient search algorithm
-  int i;
-  for (i = 0; i < NUM_OF_MIME_TYPES; ++i) {
-    if (strcmp(file_extension, mime_type_associations[i].extension) == 0) {
-      snprintf(content_type, MAX_CONTENT_TYPE, "Content-Type: %s\r\n\r\n",
-               mime_type_associations[i].mime_type);
+
+  unsigned int lower_bound = 0;
+  unsigned int upper_bound =
+      NUM_OF_MIME_TYPES - 1;
+  bool match_found = false;
+  int middle_value;
+  while (!match_found) {
+    if (lower_bound > upper_bound) {
+      middle_value = -1;
       break;
     }
+    middle_value = (lower_bound + upper_bound) / 2;
+    int comparison_result =
+        strcmp(mime_type_associations[middle_value].extension, file_extension);
+    if (comparison_result < 0) {
+      lower_bound = middle_value + 1;
+      continue;
+    }
+    if (comparison_result == 0) {
+      match_found = true;
+      break;
+    }
+    if (comparison_result > 0) {
+      upper_bound = middle_value - 1;
+      continue;
+    }
   }
+
+  if (match_found) {
+    snprintf(content_type, MAX_CONTENT_TYPE, "Content-Type: %s\r\n\r\n",
+             mime_type_associations[middle_value].mime_type);
+  } else {
+    snprintf(content_type, MAX_CONTENT_TYPE,
+             "Content-Type: application/octet-stream\r\n\r\n");
+  }
+
   return content_type;
 }
 
