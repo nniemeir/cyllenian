@@ -1,11 +1,13 @@
 #ifndef SERVER_H
 #define SERVER_H
+
 #include <arpa/inet.h>
 #include <libnn.h>
 #include <openssl/ssl.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include "config.h"
 
 #define BACKLOG_SIZE 128
 #define BUFFER_SIZE 1048576
@@ -15,7 +17,9 @@ extern int sockfd;
 extern SSL *ssl;
 extern SSL_CTX *ctx;
 
-void SSL_cleanup(void);
-int init_server(int *port, char **cert_path, char **key_path);
+void cleanup_ssl(void);
+SSL *setup_ssl(SSL_CTX *ctx, int clientfd);
+void handle_client(SSL_CTX *ctx, int clientfd);
+int init_server(struct server_config *config);
 
 #endif

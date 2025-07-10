@@ -1,4 +1,16 @@
-SRC = src/file.c src/main.c src/response.c src/server.c src/log.c
+SRC = \
+src/args.c \
+src/config.c \
+src/client.c \
+src/file.c \
+src/log.c \
+src/main.c \
+src/mime.c \
+src/paths.c \
+src/response.c \
+src/server.c \
+src/signals.c \
+src/ssl_utils.c
 
 DEFAULT_CONFIG = config/website/
 
@@ -26,39 +38,49 @@ MANDB = mandb
 
 CC = gcc
 
-OBJS=	$(SRC:.c=.o)
+BIN_DIR = bin
 
-CFLAGS = -Wall -Wextra -pedantic -g -I./include
+BUILD_DIR = build
+
+OBJS = $(SRC:src/%.c=$(BUILD_DIR)/%.o)
+
+CFLAGS = -Wall -Wextra -pedantic -g -I include
 
 LDFLAGS = -lssl -lnn
 
+all: bin $(BIN_DIR)/$(NAME)
 
-all: $(NAME)
+$(BIN_DIR)/$(NAME): $(OBJS)
+	$(CC) -o $(BIN_DIR)/$(NAME) $(OBJS) $(LDFLAGS)
 
-$(NAME): $(OBJS)
-	$(CC) -g -o $(NAME) $(OBJS) $(CFLAGS) $(LDFLAGS)
+$(BUILD_DIR)/%.o: src/%.c
+	@mkdir -p $(dir $@)
+	$(CC) -g $(CFLAGS) -c $< -o $@
+
+bin:
+	mkdir -p $(BIN_DIR)
 
 clean:
-	$(RM) $(OBJS)
+	rm -f $(OBJS)
+	rm -rf $(BUILD_DIR)
 
 cleanMan:
-	$(RM) $(SRCMAN)$(COMPMAN)
+	rm -f $(SRCMAN)$(COMPMAN)
 
 fclean: clean cleanMan
-	$(RM) $(NAME)
+	rm -rf $(BIN_DIR)
 
-install: $(NAME) 
-	$(CP) $(NAME) $(DESTDIR)
-	$(CP) $(DEFAULT_CONFIG) $(ETC_DIR)
+install: $(BIN_DIR)/$(NAME) 
+	cp -f -r $(BIN_DIR)/$(NAME) $(DESTDIR)
 	$(COMPRESS)
-	$(CP) $(SRCMAN)$(COMPMAN) $(MANDIR)
+	cp -f -r $(SRCMAN)$(COMPMAN) $(MANDIR)
 	$(MANDB)
 
 re: fclean all
 
 uninstall: $(NAME)
-	$(RM) $(DESTDIR)$(NAME)
-	$(RM) $(MANDIR)$(COMPMAN)
+	rm -f $(DESTDIR)$(NAME)
+	rm -f $(MANDIR)$(COMPMAN)
 	$(MANDB)
 
-.PHONY: all clean cleanMan fclean install re uninstall
+.PHONY: all bin clean cleanMan fclean install re uninstall

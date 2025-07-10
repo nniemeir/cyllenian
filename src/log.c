@@ -1,21 +1,24 @@
-#include "../include/log.h"
+#include "log.h"
 
 char *get_host(char *host_buffer) {
   char *substring = NULL;
+
   // Skip the request line
   char *first_line_end = strchr(host_buffer, '\n');
   if (!first_line_end) {
-    log_event(program_name, ERROR, "Malformed request.", log_to_file);
+    log_event(ERROR, "Malformed request.", log_to_file);
     return NULL;
   }
+
   substring = first_line_end + 1;
 
   // Skip to right after the Host label
   char *host_position = strstr(substring, "Host:");
   if (!host_position) {
-    log_event(program_name, ERROR, "No host found in request.", log_to_file);
+    log_event(ERROR, "No host found in request.", log_to_file);
     return NULL;
   }
+
   host_position += 6;
 
   // Terminate the string after the hostname
@@ -23,6 +26,7 @@ char *get_host(char *host_buffer) {
   if (host_end) {
     *host_end = '\0';
   }
+
   return host_position;
 }
 
@@ -40,31 +44,27 @@ int log_request(const char *request_buffer, int response_code,
                 int response_size) {
   char *host_buffer = strdup(request_buffer);
   if (!host_buffer) {
-    log_event(program_name, ERROR, "Failed to duplicate request_buffer.",
-              log_to_file);
+    log_event(ERROR, "Failed to duplicate request_buffer.", log_to_file);
     return 0;
   }
 
   char *host = get_host(host_buffer);
   if (!host) {
-    log_event(program_name, ERROR, "Failed to extract host from request.",
-              log_to_file);
+    log_event(ERROR, "Failed to extract host from request.", log_to_file);
     free(host_buffer);
     return 0;
   }
 
   char *header_buffer = strdup(request_buffer);
   if (!header_buffer) {
-    log_event(program_name, ERROR, "Failed to duplicate request_buffer.",
-              log_to_file);
+    log_event(ERROR, "Failed to duplicate request_buffer.", log_to_file);
     free(host_buffer);
     return 0;
   }
 
   char *header = get_header(header_buffer);
   if (!header) {
-    log_event(program_name, ERROR, "Failed to extract header from request.",
-              log_to_file);
+    log_event(ERROR, "Failed to extract header from request.", log_to_file);
     free(header);
     free(host_buffer);
   }
@@ -72,7 +72,8 @@ int log_request(const char *request_buffer, int response_code,
   char msg[LOG_MAX];
   snprintf(msg, LOG_MAX, "%s \"%s\" %d %d", host, header, response_code,
            response_size);
-  log_event(program_name, INFO, msg, log_to_file);
+  log_event(INFO, msg, log_to_file);
+
   free(header);
   free(host_buffer);
   return 1;
