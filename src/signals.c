@@ -1,7 +1,7 @@
 #include "signals.h"
 #include "server.h"
 
-void handler(int signal_num) {
+static void handler(int signal_num) {
   // printf is not async-signal-safe, so we opt for the write function
   (void)signal_num;
   write(STDOUT_FILENO, "\nInterrupt given, closing socket..\n", 36);
@@ -9,7 +9,7 @@ void handler(int signal_num) {
   exit(EXIT_SUCCESS);
 }
 
-int init_sig_handler(void) {
+bool sig_handler_init(void) {
   struct sigaction sa;
 
   memset(&sa, 0, sizeof(sa));
@@ -18,8 +18,8 @@ int init_sig_handler(void) {
 
   if (sigaction(SIGINT, &sa, NULL) == -1) {
     log_event(FATAL, "Failed to configure signal handling");
-    return 1;
+    return false;
   }
 
-  return 0;
+  return true;
 }

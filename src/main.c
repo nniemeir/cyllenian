@@ -5,12 +5,12 @@
 #include "signals.h"
 
 int main(int argc, char *argv[]) {
-  if (init_sig_handler() == 1) {
+  if (!sig_handler_init()) {
     exit(EXIT_FAILURE);
   }
 
   server_ctx_init();
-  
+
   if (!website_dir_exists()) {
     exit(EXIT_FAILURE);
   }
@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
 
   process_args(argc, argv);
 
-  int server_exit_status = init_server();
+  int server_exit_status = server_init();
 
   config_cleanup();
 

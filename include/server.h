@@ -1,10 +1,10 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <arpa/inet.h>
-#include <openssl/ssl.h>
 #include "common.h"
 #include "config.h"
+#include <arpa/inet.h>
+#include <openssl/ssl.h>
 
 #define BACKLOG_SIZE 128
 #define BUFFER_SIZE 1048576
@@ -20,6 +20,6 @@ void server_ctx_init(void);
 void server_cleanup(void);
 bool setup_ssl(int clientfd);
 void handle_client(struct server_ctx *server, int clientfd);
-int init_server(void);
+bool server_init(void);
 
 #endif

@@ -22,9 +22,10 @@ struct response_code {
 };
 
 char *construct_header(int response_code, const char *file_request);
-int determine_response_code(const char *request_buffer, char **file_request,
-                            int *response_code);
-int get_requested_file_path(char **path_buffer, char *request_buffer);
-void get_content_type(char content_type[MAX_CONTENT_TYPE], const char *file_request);
+bool determine_response_code(const char *request_buffer, char **file_request,
+                             int *response_code);
+bool get_requested_file_path(char **path_buffer, char *request_buffer);
+void get_content_type(char content_type[MAX_CONTENT_TYPE],
+                      const char *file_request);
 
 #endif

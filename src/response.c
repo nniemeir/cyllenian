@@ -1,8 +1,8 @@
 #include "response.h"
 #include "file.h"
 
-int get_response_code_msg(char response_code_msg[MAX_RESPONSE_CODE],
-                          int response_code) {
+static bool get_response_code_msg(char response_code_msg[MAX_RESPONSE_CODE],
+                                  int response_code) {
   static const struct response_code
       response_code_associations[NUM_OF_RESPONSE_CODES] = {
           {200, "HTTP/1.1 200 OK"},
@@ -15,13 +15,13 @@ int get_response_code_msg(char response_code_msg[MAX_RESPONSE_CODE],
     if (response_code == response_code_associations[i].code) {
       snprintf(response_code_msg, MAX_RESPONSE_CODE, "%s\r\n",
                response_code_associations[i].message);
-      return 0;
+      return true;
     }
   }
 
   log_event(ERROR, "Unsupported response code.");
 
-  return 1;
+  return false;
 }
 
 // Matches the response code to its corresponding HTTP header
@@ -36,7 +36,7 @@ char *construct_header(int response_code, const char *file_request) {
   }
 
   char response_code_msg[MAX_RESPONSE_CODE];
-  if (get_response_code_msg(response_code_msg, response_code) == 1) {
+  if (!get_response_code_msg(response_code_msg, response_code)) {
     free(header);
     return NULL;
   };
@@ -76,7 +76,7 @@ char *construct_header(int response_code, const char *file_request) {
 
 // The requested file path is extracted by skipping over the HTTP method and
 // terminating at the next space
-char *isolate_file_request(char *request_buffer) {
+static char *isolate_file_request(char *request_buffer) {
   if (!request_buffer) {
     log_event(ERROR, "NULL request_buffer was passed to isolate_file_request.");
     return NULL;
@@ -97,7 +97,7 @@ char *isolate_file_request(char *request_buffer) {
 }
 
 // Determine if the HTTP method is supported by the server
-const char *get_method(const char *request_buffer) {
+static const char *get_method(const char *request_buffer) {
   if (strncmp(request_buffer, "GET", 3) == 0) {
     return "GET";
   }
@@ -107,7 +107,7 @@ const char *get_method(const char *request_buffer) {
   return NULL;
 }
 
-int handle_error_case(char **file_request, char *error_page) {
+static bool handle_error_case(char **file_request, char *error_page) {
   static const char *fallback_website_path = "/etc/cyllenian/website";
   free(*file_request);
   *file_request = malloc(PATH_MAX);
@@ -116,11 +116,11 @@ int handle_error_case(char **file_request, char *error_page) {
     snprintf(malloc_fail_msg, LOG_MSG_MAX,
              "Memory allocation failed for file request: %s", strerror(errno));
     log_event(ERROR, malloc_fail_msg);
-    return 0;
+    return false;
   }
 
   if (!prepend_program_data_path(file_request, "website/")) {
-    return 0;
+    return false;
   }
 
   strcat(*file_request, error_page);
@@ -134,18 +134,18 @@ int handle_error_case(char **file_request, char *error_page) {
                "Memory allocation failed for file request: %s",
                strerror(errno));
       log_event(ERROR, malloc_fail_msg);
-      return 0;
+      return false;
     }
 
     memset(*file_request, 0, PATH_MAX);
     snprintf(*file_request, PATH_MAX, "%s/%s", fallback_website_path,
              error_page);
   }
-  return 1;
+  return true;
 }
 
-int determine_response_code(const char *request_buffer, char **file_request,
-                            int *response_code) {
+bool determine_response_code(const char *request_buffer, char **file_request,
+                             int *response_code) {
   const char *method = get_method(request_buffer);
   if (!method) {
     *response_code = 405;
@@ -166,14 +166,14 @@ int determine_response_code(const char *request_buffer, char **file_request,
 
   *response_code = 200;
 
-  return 1;
+  return true;
 }
 
-int get_requested_file_path(char **path_buffer, char *request_buffer) {
+bool get_requested_file_path(char **path_buffer, char *request_buffer) {
   char *file_request_buffer = strdup(request_buffer);
   if (!file_request_buffer) {
     log_event(ERROR, "Failed to duplicate file_request");
-    return 0;
+    return false;
   }
 
   char *file_request = isolate_file_request(file_request_buffer);
@@ -182,12 +182,12 @@ int get_requested_file_path(char **path_buffer, char *request_buffer) {
   }
 
   if (!prepend_program_data_path(path_buffer, "website/")) {
-    return 0;
+    return false;
   }
 
   strcat(*path_buffer, file_request);
 
   free(file_request_buffer);
 
-  return 1;
+  return true;
 }

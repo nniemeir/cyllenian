@@ -47,7 +47,7 @@ bool setup_ssl(int clientfd) {
 }
 
 // The TCP socket set up here is later used for our connections
-bool init_socket(void) {
+static bool init_socket(void) {
   // AF_INET specifies that we are using IPv4 protocols
   // SOCK_STREAM specifies that this is a standard TCP connection
   // SOCK_STREAM only has one valid protocol (IPPROTO_TCP)
@@ -106,7 +106,7 @@ bool init_ssl_ctx(void) {
 }
 
 // Accept incoming connections, creating a new process for each one
-bool client_loop(void) {
+static bool client_loop(void) {
   int clientfd = accept(server.sockfd, NULL, NULL);
   if (clientfd == -1) {
     log_event(ERROR, "Failed to accept connection.");
@@ -133,21 +133,21 @@ bool client_loop(void) {
 }
 
 // The main function for HTTPS server
-int init_server(void) {
+bool server_init(void) {
   if (!OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS |
                             OPENSSL_INIT_LOAD_CRYPTO_STRINGS,
                         NULL)) {
     log_event(ERROR, "Failed to initialize OpenSSL globally.");
-    return 1;
+    return false;
   }
 
   if (!init_ssl_ctx()) {
-    return 1;
+    return false;
   }
 
   if (!init_socket()) {
     log_event(ERROR, "Failed to create socket.");
-    return 1;
+    return false;
   }
 
   char listening_msg[LISTENING_MSG_MAX];

@@ -1,7 +1,7 @@
 #include "args.h"
 #include "config.h"
 
-void print_usage(void) {
+static void print_usage(void) {
   printf("Usage: cyllenian [options]\n");
   printf("Options:\n");
   printf("  -c               Specify path to certificate file\n");
@@ -11,7 +11,7 @@ void print_usage(void) {
   printf("  -p               Specify port to listen on\n");
 }
 
-int handle_config_arg(char **config_var, char *optarg) {
+static bool handle_config_arg(char **config_var, char *optarg) {
   if (*config_var) {
     free(*config_var);
   }
@@ -22,10 +22,10 @@ int handle_config_arg(char **config_var, char *optarg) {
     snprintf(strdup_fail_msg, LOG_MSG_MAX,
              "Failed to duplicate string to key_path: %s", strerror(errno));
     log_event(ERROR, strdup_fail_msg);
-    return 1;
+    return false;
   }
 
-  return 0;
+  return true;
 }
 
 void process_args(int argc, char *argv[]) {
@@ -34,7 +34,7 @@ void process_args(int argc, char *argv[]) {
   while ((c = getopt(argc, argv, "c:hk:lp:")) != -1) {
     switch (c) {
     case 'c':
-      if (handle_config_arg(&config->cert_path, optarg) == 1) {
+      if (!handle_config_arg(&config->cert_path, optarg)) {
         config_cleanup();
         exit(EXIT_FAILURE);
       }
@@ -45,7 +45,7 @@ void process_args(int argc, char *argv[]) {
       exit(EXIT_SUCCESS);
 
     case 'k':
-      if (handle_config_arg(&config->key_path, optarg) == 1) {
+      if (!handle_config_arg(&config->key_path, optarg)) {
         config_cleanup();
         exit(EXIT_FAILURE);
       }

@@ -4,6 +4,6 @@
 #include "common.h"
 #include <signal.h>
 
-int init_sig_handler(void);
+bool sig_handler_init(void);
 
 #endif

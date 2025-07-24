@@ -1,3 +1,4 @@
+#include "file.h"
 #include "log.h"
 
 bool file_exists(const char *filename) {

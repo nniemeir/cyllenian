@@ -10,8 +10,7 @@ src/mime.c \
 src/paths.c \
 src/response.c \
 src/server.c \
-src/signals.c \
-src/ssl_utils.c
+src/signals.c
 
 DEFAULT_CONFIG = config/website/
 
