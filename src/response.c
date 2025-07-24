@@ -1,8 +1,6 @@
 #include "response.h"
 #include "file.h"
 
-static const char *fallback_website_path = "/etc/cyllenian/website";
-
 int get_response_code_msg(char response_code_msg[MAX_RESPONSE_CODE],
                           int response_code) {
   static const struct response_code
@@ -21,7 +19,7 @@ int get_response_code_msg(char response_code_msg[MAX_RESPONSE_CODE],
     }
   }
 
-  log_event(ERROR, "Unsupported response code.", log_to_file);
+  log_event(ERROR, "Unsupported response code.");
 
   return 1;
 }
@@ -33,7 +31,7 @@ char *construct_header(int response_code, const char *file_request) {
   static const char *server_name = "Server: Cyllenian\r\n";
   char *header = malloc(MAX_HEADER);
   if (!header) {
-    log_event(ERROR, "Failed to allocate memory for header.", log_to_file);
+    log_event(ERROR, "Failed to allocate memory for header.");
     return NULL;
   }
 
@@ -50,7 +48,7 @@ char *construct_header(int response_code, const char *file_request) {
     snprintf(header, MAX_HEADER, "%s", response_code_msg);
     remaining_header_space -= response_code_msg_length;
   } else {
-    log_event(ERROR, "Header overflow.", log_to_file);
+    log_event(ERROR, "Header overflow.");
     free(header);
     return NULL;
   }
@@ -68,7 +66,7 @@ char *construct_header(int response_code, const char *file_request) {
     }
     remaining_header_space -= content_type_length;
   } else {
-    log_event(ERROR, "Header overflow.", log_to_file);
+    log_event(ERROR, "Header overflow.");
     free(header);
     return NULL;
   }
@@ -80,8 +78,7 @@ char *construct_header(int response_code, const char *file_request) {
 // terminating at the next space
 char *isolate_file_request(char *request_buffer) {
   if (!request_buffer) {
-    log_event(ERROR, "NULL request_buffer was passed to isolate_file_request.",
-              log_to_file);
+    log_event(ERROR, "NULL request_buffer was passed to isolate_file_request.");
     return NULL;
   }
 
@@ -111,18 +108,18 @@ const char *get_method(const char *request_buffer) {
 }
 
 int handle_error_case(char **file_request, char *error_page) {
+  static const char *fallback_website_path = "/etc/cyllenian/website";
   free(*file_request);
   *file_request = malloc(PATH_MAX);
   if (!*file_request) {
-    char malloc_fail_msg[LOG_MAX];
-    snprintf(malloc_fail_msg, LOG_MAX,
+    char malloc_fail_msg[LOG_MSG_MAX];
+    snprintf(malloc_fail_msg, LOG_MSG_MAX,
              "Memory allocation failed for file request: %s", strerror(errno));
-    log_event(ERROR, malloc_fail_msg, log_to_file);
+    log_event(ERROR, malloc_fail_msg);
     return 0;
   }
 
-  if (prepend_program_data_path(file_request, "website/") == 1) {
-    log_event(ERROR, prepend_err, log_to_file);
+  if (!prepend_program_data_path(file_request, "website/")) {
     return 0;
   }
 
@@ -132,11 +129,11 @@ int handle_error_case(char **file_request, char *error_page) {
     free(*file_request);
     *file_request = malloc(PATH_MAX);
     if (!*file_request) {
-      char malloc_fail_msg[LOG_MAX];
-      snprintf(malloc_fail_msg, LOG_MAX,
+      char malloc_fail_msg[LOG_MSG_MAX];
+      snprintf(malloc_fail_msg, LOG_MSG_MAX,
                "Memory allocation failed for file request: %s",
                strerror(errno));
-      log_event(ERROR, malloc_fail_msg, log_to_file);
+      log_event(ERROR, malloc_fail_msg);
       return 0;
     }
 
@@ -175,7 +172,7 @@ int determine_response_code(const char *request_buffer, char **file_request,
 int get_requested_file_path(char **path_buffer, char *request_buffer) {
   char *file_request_buffer = strdup(request_buffer);
   if (!file_request_buffer) {
-    log_event(ERROR, "Failed to duplicate file_request", log_to_file);
+    log_event(ERROR, "Failed to duplicate file_request");
     return 0;
   }
 
@@ -184,8 +181,7 @@ int get_requested_file_path(char **path_buffer, char *request_buffer) {
     file_request = "404.html";
   }
 
-  if (prepend_program_data_path(path_buffer, "website/") == 1) {
-    log_event(ERROR, prepend_err, log_to_file);
+  if (!prepend_program_data_path(path_buffer, "website/")) {
     return 0;
   }
 

@@ -1,4 +1,5 @@
 #include "response.h"
+#include "file.h"
 
 void get_content_type(char content_type[MAX_CONTENT_TYPE],
                       const char *file_request) {

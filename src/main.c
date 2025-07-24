@@ -4,32 +4,24 @@
 #include "server.h"
 #include "signals.h"
 
-int sockfd;
-SSL *ssl;
-SSL_CTX *ctx;
-int log_to_file;
-const char *program_name = "cyllenian";
-
 int main(int argc, char *argv[]) {
-  log_to_file = 0;
-  struct server_config config;
-  config.port = 8080;
-
   if (init_sig_handler() == 1) {
     exit(EXIT_FAILURE);
   }
 
+  server_ctx_init();
+  
   if (!website_dir_exists()) {
     exit(EXIT_FAILURE);
   }
 
-  init_config(&config);
+  config_init();
 
-  process_args(argc, argv, &config);
+  process_args(argc, argv);
 
-  int server_exit_status = init_server(&config);
+  int server_exit_status = init_server();
 
-  cleanup_config(&config);
+  config_cleanup();
 
   return server_exit_status;
 }

@@ -3,6 +3,7 @@ src/args.c \
 src/config.c \
 src/client.c \
 src/file.c \
+src/file_utils.c \
 src/log.c \
 src/main.c \
 src/mime.c \
@@ -46,7 +47,7 @@ OBJS = $(SRC:src/%.c=$(BUILD_DIR)/%.o)
 
 CFLAGS = -Wall -Wextra -pedantic -g -I include
 
-LDFLAGS = -lssl -lnn
+LDFLAGS = -lssl
 
 all: bin $(BIN_DIR)/$(NAME)
 

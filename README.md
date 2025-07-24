@@ -3,7 +3,6 @@ A simple HTTPS web server
 
 ## Dependencies
 * OpenSSL development libraries
-* [libnn](https://github.com/nniemeir/libnn)
 
 
 ## Usage

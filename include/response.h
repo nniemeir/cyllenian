@@ -1,11 +1,7 @@
 #ifndef RESPONSE_H
 #define RESPONSE_H
 
-#include <libnn.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "common.h"
 
 #define BUFFER_SIZE 1048576
 #define MAX_HEADER 1024

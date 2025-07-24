@@ -1,4 +1,5 @@
 #include "args.h"
+#include "config.h"
 
 void print_usage(void) {
   printf("Usage: cyllenian [options]\n");
@@ -17,23 +18,24 @@ int handle_config_arg(char **config_var, char *optarg) {
 
   *config_var = strdup(optarg);
   if (!*config_var) {
-    char strdup_fail_msg[LOG_MAX];
-    snprintf(strdup_fail_msg, LOG_MAX,
+    char strdup_fail_msg[LOG_MSG_MAX];
+    snprintf(strdup_fail_msg, LOG_MSG_MAX,
              "Failed to duplicate string to key_path: %s", strerror(errno));
-    log_event(ERROR, strdup_fail_msg, log_to_file);
-    free(*config_var);
+    log_event(ERROR, strdup_fail_msg);
     return 1;
   }
 
   return 0;
 }
 
-void process_args(int argc, char *argv[], struct server_config *config) {
+void process_args(int argc, char *argv[]) {
+  struct server_config *config = config_get_ctx();
   int c;
   while ((c = getopt(argc, argv, "c:hk:lp:")) != -1) {
     switch (c) {
     case 'c':
       if (handle_config_arg(&config->cert_path, optarg) == 1) {
+        config_cleanup();
         exit(EXIT_FAILURE);
       }
       break;
@@ -44,20 +46,20 @@ void process_args(int argc, char *argv[], struct server_config *config) {
 
     case 'k':
       if (handle_config_arg(&config->key_path, optarg) == 1) {
-        free(config->cert_path);
+        config_cleanup();
         exit(EXIT_FAILURE);
       }
       break;
 
     case 'l':
-      log_to_file = 1;
+      config->log_to_file = true;
       break;
 
     case 'p':
       config->port = atoi(optarg);
       if (config->port <= 1024 || config->port >= 49151) {
-        log_event(ERROR, "Port must be between 1024 and 49151.", log_to_file);
-        cleanup_config(config);
+        log_event(ERROR, "Port must be between 1024 and 49151.");
+        config_cleanup();
         exit(EXIT_FAILURE);
       }
       break;
@@ -65,10 +67,10 @@ void process_args(int argc, char *argv[], struct server_config *config) {
     case '?':
       fprintf(stderr, "Unknown option '-%c'. Run with -h for options.\n",
               optopt);
-      char errmsg[LOG_MAX];
-      snprintf(errmsg, LOG_MAX,
+      char errmsg[LOG_MSG_MAX];
+      snprintf(errmsg, LOG_MSG_MAX,
                "Unknown option '-%c'. Run with -h for options.", optopt);
-      log_event(ERROR, errmsg, log_to_file);
+      log_event(ERROR, errmsg);
       exit(EXIT_FAILURE);
     }
   }
