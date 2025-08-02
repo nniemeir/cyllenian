@@ -37,8 +37,7 @@ cyllenian [OPTIONS]
 -p <port>               Specify port to listen on
 ```
 
-
 ## License
-The MIT License (MIT)
+GNU General Public License V2
 
 Copyright (c) 2025 Jacob Niemeir
