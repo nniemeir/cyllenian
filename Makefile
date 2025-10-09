@@ -1,20 +1,6 @@
-SRC = \
-src/args.c \
-src/config.c \
-src/client.c \
-src/file.c \
-src/file_utils.c \
-src/log.c \
-src/main.c \
-src/mime.c \
-src/paths.c \
-src/response.c \
-src/server.c \
-src/signals.c
+SRC := $(wildcard src/*.c)
 
-DEFAULT_CONFIG = config/website/
-
-ETC_DIR = /etc/cyllenian/website/
+ETC_DIR = /etc/cyllenian/
 
 NAME = cyllenian
 
@@ -72,6 +58,8 @@ fclean: clean cleanMan
 
 install: $(BIN_DIR)/$(NAME) 
 	cp -f -r $(BIN_DIR)/$(NAME) $(DESTDIR)
+	mkdir -p $(ETC_DIR)
+	cp -f -r "config/website" $(ETC_DIR)
 	$(COMPRESS)
 	cp -f -r $(SRCMAN)$(COMPMAN) $(MANDIR)
 	$(MANDB)
