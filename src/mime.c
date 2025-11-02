@@ -8,8 +8,8 @@ void get_content_type(char content_type[MAX_CONTENT_TYPE],
       {"htm", "text/html"},      {"html", "text/html"},
       {"jpeg", "image/jpeg"},    {"jpg", "image/jpeg"},
       {"js", "text/javascript"}, {"json", "application/json"},
-      {"png", "image/png"},      {"mp3", "audio/mpeg"},
-      {"mp4", "video/mp4"},      {"svg", "image/svg+xml"},
+      {"mp3", "audio/mpeg"},     {"mp4", "video/mp4"},
+      {"png", "image/png"},      {"svg", "image/svg+xml"},
       {"ttf", "font/ttf"},       {"xml", "application/xml"}};
 
   char *file_extension = get_file_extension(file_request);
