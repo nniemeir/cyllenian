@@ -1,8 +1,6 @@
 #ifndef RESPONSE_H
 #define RESPONSE_H
 
-#include "common.h"
-
 #define BUFFER_SIZE 1048576
 #define MAX_HEADER 1024
 #define MAX_CONTENT_TYPE 128

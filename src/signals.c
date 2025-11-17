@@ -1,5 +1,9 @@
-#include "signals.h"
+#include <signal.h>
+#include <unistd.h>
+
+#include "log.h"
 #include "server.h"
+#include "signals.h"
 
 static void handler(int signal_num) {
   // printf is not async-signal-safe, so we opt for the write function

@@ -1,3 +1,5 @@
+#include <unistd.h>
+
 #include "file.h"
 #include "log.h"
 #include "response.h"
@@ -18,14 +20,15 @@ static int read_from_client(struct server_ctx *server, char *request_buffer) {
 }
 
 static int process_request(char **path_buffer, char *request_buffer,
-                            int *response_code) {
+                           int *response_code) {
   if (get_requested_file_path(path_buffer, request_buffer) == -1) {
     log_event(FATAL, "Failed to get requested file path.");
     server_cleanup();
     return -1;
   }
 
-  if (determine_response_code(request_buffer, path_buffer, response_code) == -1) {
+  if (determine_response_code(request_buffer, path_buffer, response_code) ==
+      -1) {
     log_event(FATAL, "Failed to determine response code.");
     server_cleanup();
     return -1;
@@ -34,7 +37,7 @@ static int process_request(char **path_buffer, char *request_buffer,
 }
 
 static int write_to_client(SSL *ssl, char **header, char **path_buffer,
-                            size_t *file_size) {
+                           size_t *file_size) {
   // After an appropriate response is generated, it is sent to the client
   if (SSL_write(ssl, *header, strlen(*header)) <= 0) {
     log_event(ERROR, "Failed to write header to connection.");

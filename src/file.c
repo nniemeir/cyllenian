@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "file.h"
 
 bool contains_traversal_patterns(const char *file_request) {

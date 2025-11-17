@@ -1,5 +1,10 @@
-#include "server.h"
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
 #include "config.h"
+#include "log.h"
+#include "server.h"
 
 static struct server_ctx server = {0};
 

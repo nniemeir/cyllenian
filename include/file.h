@@ -1,8 +1,8 @@
 #ifndef FILE_H
 #define FILE_H
 
-#include "common.h"
-#include <sys/stat.h>
+#include <stdbool.h>
+#include <stddef.h>
 
 bool contains_traversal_patterns(const char *file_request);
 void normalize_request_path(char *file_request);

@@ -1,9 +1,6 @@
 #ifndef LOG_H
 #define LOG_H
 
-#include "common.h"
-#include <time.h>
-
 #define LOG_MSG_MAX 1024
 #define NULL_TERMINATOR_LENGTH 1
 

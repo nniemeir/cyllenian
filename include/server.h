@@ -1,9 +1,6 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "common.h"
-#include "config.h"
-#include <arpa/inet.h>
 #include <openssl/ssl.h>
 
 #define BACKLOG_SIZE 128

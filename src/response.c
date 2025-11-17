@@ -1,9 +1,16 @@
-#include "response.h"
+#include <errno.h>
+#include <linux/limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "file.h"
+#include "log.h"
 #include "paths.h"
+#include "response.h"
 
 static int get_response_code_msg(char response_code_msg[MAX_RESPONSE_CODE],
-                                  int response_code) {
+                                 int response_code) {
   static const struct response_code
       response_code_associations[NUM_OF_RESPONSE_CODES] = {
           {200, "HTTP/1.1 200 OK"},
@@ -146,7 +153,7 @@ static int handle_error_case(char **file_request, char *error_page) {
 }
 
 int determine_response_code(const char *request_buffer, char **file_request,
-                             int *response_code) {
+                            int *response_code) {
   const char *method = get_method(request_buffer);
   if (!method) {
     *response_code = 405;

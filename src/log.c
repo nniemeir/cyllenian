@@ -1,6 +1,14 @@
-#include "log.h"
+#include <errno.h>
+#include <linux/limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <time.h>
+
 #include "config.h"
 #include "file.h"
+#include "log.h"
 
 static const char *get_log_level_msg(const int log_level) {
   switch (log_level) {

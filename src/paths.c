@@ -1,5 +1,12 @@
-#include "paths.h"
+#include <errno.h>
+#include <linux/limits.h>
+#include <paths.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "file.h"
+#include "log.h"
 
 int prepend_program_data_path(char **path_buffer, const char *original_path) {
   const char *home = getenv("HOME");

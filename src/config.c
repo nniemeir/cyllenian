@@ -1,4 +1,11 @@
+#include <errno.h>
+#include <linux/limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "config.h"
+#include "log.h"
 #include "paths.h"
 
 static struct server_config config;

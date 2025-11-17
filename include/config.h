@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include "common.h"
+#include <stdbool.h>
 
 struct server_config {
   char *cert_path;
