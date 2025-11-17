@@ -1,7 +1,8 @@
 #include "response.h"
 #include "file.h"
+#include "paths.h"
 
-static bool get_response_code_msg(char response_code_msg[MAX_RESPONSE_CODE],
+static int get_response_code_msg(char response_code_msg[MAX_RESPONSE_CODE],
                                   int response_code) {
   static const struct response_code
       response_code_associations[NUM_OF_RESPONSE_CODES] = {
@@ -15,13 +16,13 @@ static bool get_response_code_msg(char response_code_msg[MAX_RESPONSE_CODE],
     if (response_code == response_code_associations[i].code) {
       snprintf(response_code_msg, MAX_RESPONSE_CODE, "%s\r\n",
                response_code_associations[i].message);
-      return true;
+      return 0;
     }
   }
 
   log_event(ERROR, "Unsupported response code.");
 
-  return false;
+  return -1;
 }
 
 // Matches the response code to its corresponding HTTP header
@@ -36,7 +37,7 @@ char *construct_header(int response_code, const char *file_request) {
   }
 
   char response_code_msg[MAX_RESPONSE_CODE];
-  if (!get_response_code_msg(response_code_msg, response_code)) {
+  if (get_response_code_msg(response_code_msg, response_code) == -1) {
     free(header);
     return NULL;
   };
@@ -107,7 +108,7 @@ static const char *get_method(const char *request_buffer) {
   return NULL;
 }
 
-static bool handle_error_case(char **file_request, char *error_page) {
+static int handle_error_case(char **file_request, char *error_page) {
   static const char *fallback_website_path = "/etc/cyllenian/website";
   free(*file_request);
   *file_request = malloc(PATH_MAX);
@@ -116,11 +117,11 @@ static bool handle_error_case(char **file_request, char *error_page) {
     snprintf(malloc_fail_msg, LOG_MSG_MAX,
              "Memory allocation failed for file request: %s", strerror(errno));
     log_event(ERROR, malloc_fail_msg);
-    return false;
+    return -1;
   }
 
-  if (!prepend_program_data_path(file_request, "website/")) {
-    return false;
+  if (prepend_program_data_path(file_request, "website/") == -1) {
+    return -1;
   }
 
   strcat(*file_request, error_page);
@@ -134,17 +135,17 @@ static bool handle_error_case(char **file_request, char *error_page) {
                "Memory allocation failed for file request: %s",
                strerror(errno));
       log_event(ERROR, malloc_fail_msg);
-      return false;
+      return -1;
     }
 
     memset(*file_request, 0, PATH_MAX);
     snprintf(*file_request, PATH_MAX, "%s/%s", fallback_website_path,
              error_page);
   }
-  return true;
+  return 0;
 }
 
-bool determine_response_code(const char *request_buffer, char **file_request,
+int determine_response_code(const char *request_buffer, char **file_request,
                              int *response_code) {
   const char *method = get_method(request_buffer);
   if (!method) {
@@ -166,14 +167,14 @@ bool determine_response_code(const char *request_buffer, char **file_request,
 
   *response_code = 200;
 
-  return true;
+  return 0;
 }
 
-bool get_requested_file_path(char **path_buffer, char *request_buffer) {
+int get_requested_file_path(char **path_buffer, char *request_buffer) {
   char *file_request_buffer = strdup(request_buffer);
   if (!file_request_buffer) {
     log_event(ERROR, "Failed to duplicate file_request");
-    return false;
+    return -1;
   }
 
   char *file_request = isolate_file_request(file_request_buffer);
@@ -181,13 +182,13 @@ bool get_requested_file_path(char **path_buffer, char *request_buffer) {
     file_request = "404.html";
   }
 
-  if (!prepend_program_data_path(path_buffer, "website/")) {
-    return false;
+  if (prepend_program_data_path(path_buffer, "website/") == -1) {
+    return -1;
   }
 
   strcat(*path_buffer, file_request);
 
   free(file_request_buffer);
 
-  return true;
+  return 0;
 }

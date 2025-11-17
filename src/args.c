@@ -11,7 +11,7 @@ static void print_usage(void) {
   printf("  -p               Specify port to listen on\n");
 }
 
-static bool handle_config_arg(char **config_var, char *optarg) {
+static int handle_config_arg(char **config_var, char *optarg) {
   if (*config_var) {
     free(*config_var);
   }
@@ -22,10 +22,10 @@ static bool handle_config_arg(char **config_var, char *optarg) {
     snprintf(strdup_fail_msg, LOG_MSG_MAX,
              "Failed to duplicate string to key_path: %s", strerror(errno));
     log_event(ERROR, strdup_fail_msg);
-    return false;
+    return -1;
   }
 
-  return true;
+  return 0;
 }
 
 void process_args(int argc, char *argv[]) {
@@ -34,7 +34,7 @@ void process_args(int argc, char *argv[]) {
   while ((c = getopt(argc, argv, "c:hk:lp:")) != -1) {
     switch (c) {
     case 'c':
-      if (!handle_config_arg(&config->cert_path, optarg)) {
+      if (handle_config_arg(&config->cert_path, optarg) == -1) {
         config_cleanup();
         exit(EXIT_FAILURE);
       }
@@ -45,7 +45,7 @@ void process_args(int argc, char *argv[]) {
       exit(EXIT_SUCCESS);
 
     case 'k':
-      if (!handle_config_arg(&config->key_path, optarg)) {
+      if (handle_config_arg(&config->key_path, optarg) == -1) {
         config_cleanup();
         exit(EXIT_FAILURE);
       }

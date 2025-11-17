@@ -1,22 +1,22 @@
 #include "paths.h"
 #include "file.h"
 
-bool prepend_program_data_path(char **path_buffer, const char *original_path) {
+int prepend_program_data_path(char **path_buffer, const char *original_path) {
   const char *home = getenv("HOME");
   if (!home) {
     log_event(ERROR, "Failed to get value of HOME environment variable.");
-    return false;
+    return -1;
   }
 
   if (!*path_buffer) {
     log_event(ERROR, "NULL pointer was passed to prepend_program_data_path.");
-    return false;
+    return -1;
   }
 
   snprintf(*path_buffer, PATH_MAX, "%s/.local/share/cyllenian/%s", home,
            original_path);
 
-  return true;
+  return 0;
 }
 
 bool website_dir_exists(void) {
@@ -29,8 +29,7 @@ bool website_dir_exists(void) {
     return false;
   }
 
-  prepend_program_data_path(&path_buffer, "website/");
-  if (!path_buffer) {
+  if (prepend_program_data_path(&path_buffer, "website/") == -1) {
     return false;
   }
 

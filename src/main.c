@@ -5,7 +5,7 @@
 #include "signals.h"
 
 int main(int argc, char *argv[]) {
-  if (!sig_handler_init()) {
+  if (sig_handler_init() == -1) {
     exit(EXIT_FAILURE);
   }
 

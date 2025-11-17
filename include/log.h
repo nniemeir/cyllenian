@@ -9,12 +9,10 @@
 
 enum levels { DEBUG, INFO, WARN, ERROR, FATAL };
 
-bool log_event(int log_level, const char *msg);
+void log_event(int log_level, const char *msg);
 
 // String Operations
-bool prepend_program_data_path(char **path_buffer, const char *original_path);
-
-bool log_request(const char *request_buffer, int response_code,
+void log_request(const char *request_buffer, int response_code,
                  int response_size);
 
 #endif

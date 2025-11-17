@@ -18,8 +18,8 @@ struct server_ctx {
 
 void server_ctx_init(void);
 void server_cleanup(void);
-bool setup_ssl(int clientfd);
+int setup_ssl(int clientfd);
 void handle_client(struct server_ctx *server, int clientfd);
-bool server_init(void);
+int server_init(void);
 
 #endif

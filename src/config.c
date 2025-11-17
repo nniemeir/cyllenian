@@ -1,4 +1,5 @@
 #include "config.h"
+#include "paths.h"
 
 static struct server_config config;
 
@@ -37,8 +38,8 @@ void config_init(void) {
     exit(EXIT_FAILURE);
   }
 
-  if (!prepend_program_data_path(&config.cert_path, "cert") ||
-      !prepend_program_data_path(&config.key_path, "key")) {
+  if (prepend_program_data_path(&config.cert_path, "cert") == -1 ||
+      prepend_program_data_path(&config.key_path, "key") == -1) {
     config_cleanup();
     exit(EXIT_FAILURE);
   }

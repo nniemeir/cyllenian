@@ -20,24 +20,24 @@ static const char *get_log_level_msg(const int log_level) {
   }
 }
 
-static bool construct_log_path(char **path_buffer) {
+static int construct_log_path(char **path_buffer) {
   const char *home = getenv("HOME");
   if (!home) {
     log_event(ERROR, "Failed to get value of HOME environment variable.");
-    return false;
+    return -1;
   }
 
   if (!*path_buffer) {
     log_event(ERROR, "NULL pointer was passed to construct_log_path.");
-    return false;
+    return -1;
   }
 
   snprintf(*path_buffer, PATH_MAX, "%s/.local/state/cyllenian", home);
 
-  return true;
+  return 0;
 }
 
-static bool write_to_log_file(const char *formatted_msg, struct tm *tm) {
+static int write_to_log_file(const char *formatted_msg, struct tm *tm) {
   char log_filename[NAME_MAX];
 
   snprintf(log_filename, NAME_MAX, "log_%d%02d%02d.txt", tm->tm_year + 1900,
@@ -47,12 +47,12 @@ static bool write_to_log_file(const char *formatted_msg, struct tm *tm) {
   if (!path_buffer) {
     fprintf(stderr, "Failed to allocate memory for path_buffer: %s\n",
             strerror(errno));
-    return false;
+    return -1;
   }
 
-  if (!construct_log_path(&path_buffer)) {
+  if (construct_log_path(&path_buffer) == -1) {
     free(path_buffer);
-    return false;
+    return -1;
   }
 
   char *log_path = malloc(PATH_MAX);
@@ -60,7 +60,7 @@ static bool write_to_log_file(const char *formatted_msg, struct tm *tm) {
     fprintf(stderr, "Failed to allocate memory for log_path: %s\n",
             strerror(errno));
     free(path_buffer);
-    return false;
+    return -1;
   }
 
   if (!file_exists(path_buffer)) {
@@ -68,7 +68,7 @@ static bool write_to_log_file(const char *formatted_msg, struct tm *tm) {
       fprintf(stderr, "Failed to make log directory: %s\n", strerror(errno));
       free(log_path);
       free(path_buffer);
-      return false;
+      return -1;
     }
   }
 
@@ -77,7 +77,7 @@ static bool write_to_log_file(const char *formatted_msg, struct tm *tm) {
   if (!file) {
     fprintf(stderr, "Failed to open file %s:%s\n", log_path, strerror(errno));
     free(path_buffer);
-    return false;
+    return -1;
   }
 
   fprintf(file, "%s", formatted_msg);
@@ -86,41 +86,41 @@ static bool write_to_log_file(const char *formatted_msg, struct tm *tm) {
     fprintf(stderr, "Failed to close file %s:%s\n", log_path, strerror(errno));
     free(path_buffer);
     free(log_path);
-    return false;
+    return -1;
   }
 
   free(path_buffer);
   free(log_path);
 
-  return true;
+  return 0;
 }
 
-bool log_event(int log_level, const char *msg) {
+void log_event(int log_level, const char *msg) {
   if (!msg) {
     fprintf(stderr, "NULL log message.\n");
-    return false;
+    return;
   }
 
   if (msg[0] == '\0') {
     fprintf(stderr, "Empty log message.\n");
-    return false;
+    return;
   }
 
   const char *log_level_msg = get_log_level_msg(log_level);
   if (!log_level_msg) {
-    return false;
+    return;
   }
 
   const time_t t = time(NULL);
   if (t == (time_t)-1) {
     fprintf(stderr, "Failed to get time: %s", strerror(errno));
-    return false;
+    return;
   }
 
   struct tm *tm = localtime(&t);
   if (tm == NULL) {
     fprintf(stderr, "Failed to get time: %s", strerror(errno));
-    return false;
+    return;
   }
 
   char formatted_msg[LOG_MSG_MAX];
@@ -135,11 +135,11 @@ bool log_event(int log_level, const char *msg) {
   }
 
   if (config_get_ctx()->log_to_file) {
-    if (!write_to_log_file(formatted_msg, tm)) {
-      return false;
+    if (write_to_log_file(formatted_msg, tm) == -1) {
+      fprintf(stderr, "Failed to write to log file.\n");
+      return;
     }
   }
-  return true;
 }
 
 static char *get_host(char *host_buffer) {
@@ -182,26 +182,26 @@ static char *get_header(char *header_buffer) {
 }
 
 // Gather relevant information about the request and send to log_event
-bool log_request(const char *request_buffer, int response_code,
+void log_request(const char *request_buffer, int response_code,
                  int response_size) {
   char *host_buffer = strdup(request_buffer);
   if (!host_buffer) {
     log_event(ERROR, "Failed to duplicate request_buffer.");
-    return false;
+    return;
   }
 
   char *host = get_host(host_buffer);
   if (!host) {
     log_event(ERROR, "Failed to extract host from request.");
     free(host_buffer);
-    return false;
+    return;
   }
 
   char *header_buffer = strdup(request_buffer);
   if (!header_buffer) {
     log_event(ERROR, "Failed to duplicate request_buffer.");
     free(host_buffer);
-    return false;
+    return;
   }
 
   char *header = get_header(header_buffer);
@@ -209,7 +209,7 @@ bool log_request(const char *request_buffer, int response_code,
     log_event(ERROR, "Failed to extract header from request.");
     free(header);
     free(host_buffer);
-    return false;
+    return;
   }
 
   char msg[LOG_MSG_MAX];
@@ -219,5 +219,4 @@ bool log_request(const char *request_buffer, int response_code,
 
   free(header);
   free(host_buffer);
-  return 1;
 }
