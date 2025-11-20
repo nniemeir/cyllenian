@@ -30,7 +30,7 @@ cyllenian [OPTIONS]
 
 ### Options
 ```
--c <directory>          Specify path to certificate file
+-c <path>          Specify path to certificate file
 -h                      Display program usage
 -k <directory>          Specify path to private key file
 -l                      Save program output to file
